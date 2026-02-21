@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Quiz met Countdown</title>
+  <title>Quiz met Achtergrondgeluid</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -13,65 +13,88 @@
       align-items: center;
       height: 100vh;
       background-color: #f0f0f0;
+      text-align: center;
     }
     #vraag-container {
       font-size: 1.5rem;
       margin-bottom: 20px;
-      text-align: center;
     }
     #countdown {
       font-size: 2rem;
       margin-bottom: 20px;
       color: #d9534f;
     }
+    #antwoord-container {
+      font-size: 1.5rem;
+      margin-top: 20px;
+      color: #0275d8;
+    }
     button {
       padding: 10px 20px;
       font-size: 1rem;
       cursor: pointer;
+      margin-bottom: 20px;
     }
   </style>
 </head>
 <body>
 
-  <div id="vraag-container">Klik op de knop om de vraag te starten</div>
+  <div id="vraag-container">Klik op de knop om de quiz te starten</div>
   <div id="countdown"></div>
   <button id="start-btn">Start Quiz</button>
+  <div id="antwoord-container"></div>
 
-  <!-- Geluid -->
-  <audio id="belletje" src="https://www.soundjay.com/buttons/sounds/beep-07.mp3" preload="auto"></audio>
+  <!-- Achtergrondgeluid (loop) -->
+  <audio id="achtergrond" src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" loop preload="auto"></audio>
+  <!-- Belletje -->
+  <audio id="belletje" src="https://www.soundjay.com/button/sounds/button-10.mp3" preload="auto"></audio>
 
   <script>
     const vragen = [
-      "Wat is de hoofdstad van Nederland?",
-      "Hoeveel provincies heeft Nederland?",
-      "Wie schilderde de Nachtwacht?",
-      "Wat is de grootste planeet in ons zonnestelsel?",
-      "Hoeveel seconden zitten er in een uur?"
+      {vraag: "Wat is de hoofdstad van Nederland?", antwoord: "Amsterdam"},
+      {vraag: "Hoeveel provincies heeft Nederland?", antwoord: "12"},
+      {vraag: "Wie schilderde de Nachtwacht?", antwoord: "Rembrandt"},
+      {vraag: "Wat is de grootste planeet in ons zonnestelsel?", antwoord: "Jupiter"},
+      {vraag: "Hoeveel seconden zitten er in een uur?", antwoord: "3600"}
     ];
 
     const vraagContainer = document.getElementById('vraag-container');
     const countdownEl = document.getElementById('countdown');
+    const antwoordContainer = document.getElementById('antwoord-container');
     const startBtn = document.getElementById('start-btn');
     const belletje = document.getElementById('belletje');
+    const achtergrond = document.getElementById('achtergrond');
 
     startBtn.addEventListener('click', () => {
+      antwoordContainer.textContent = "";
+
+      // Start achtergrondgeluid (gebruikersinteractie vereist)
+      if (achtergrond.paused) {
+        achtergrond.play();
+      }
+
       // Kies een willekeurige vraag
       const randomIndex = Math.floor(Math.random() * vragen.length);
-      const vraag = vragen[randomIndex];
-      vraagContainer.textContent = vraag;
+      const q = vragen[randomIndex];
+      vraagContainer.textContent = q.vraag;
 
       let timer = 3; // 3 seconden countdown
       countdownEl.textContent = timer;
 
-      // Start interval
       const interval = setInterval(() => {
         timer--;
         if (timer > 0) {
           countdownEl.textContent = timer;
         } else {
+          clearInterval(interval);
           countdownEl.textContent = "Belletje!";
           belletje.play();
-          clearInterval(interval);
+
+          // 2 seconden later antwoord tonen
+          setTimeout(() => {
+            countdownEl.textContent = "";
+            antwoordContainer.textContent = "Antwoord: " + q.antwoord;
+          }, 2000);
         }
       }, 1000);
     });

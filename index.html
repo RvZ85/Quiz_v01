@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Quiz met Achtergrondgeluid</title>
+  <title>Quiz Webapp</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -33,7 +33,13 @@
       padding: 10px 20px;
       font-size: 1rem;
       cursor: pointer;
+      margin: 5px;
+    }
+    #speaker-btn {
+      font-size: 2rem;
+      cursor: pointer;
       margin-bottom: 20px;
+      user-select: none;
     }
   </style>
 </head>
@@ -41,13 +47,14 @@
 
   <div id="vraag-container">Klik op de knop om de quiz te starten</div>
   <div id="countdown"></div>
+  <div id="speaker-btn">🔊</div>
   <button id="start-btn">Start Quiz</button>
   <div id="antwoord-container"></div>
 
-  <!-- Achtergrondgeluid (loop) -->
+  <!-- Achtergrondgeluid -->
   <audio id="achtergrond" src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" loop preload="auto"></audio>
   <!-- Belletje -->
-  <audio id="belletje" src="https://www.soundjay.com/button/sounds/button-10.mp3" preload="auto"></audio>
+  <audio id="belletje" src="https://www.orangefreesounds.com/wp-content/uploads/2016/12/Button-beep-tone.mp3" preload="auto"></audio>
 
   <script>
     const vragen = [
@@ -62,14 +69,42 @@
     const countdownEl = document.getElementById('countdown');
     const antwoordContainer = document.getElementById('antwoord-container');
     const startBtn = document.getElementById('start-btn');
+    const speakerBtn = document.getElementById('speaker-btn');
     const belletje = document.getElementById('belletje');
     const achtergrond = document.getElementById('achtergrond');
+
+    // Achtergrondmuziek op 30% volume
+    achtergrond.volume = 0.3;
+    let muted = false;
+
+    // Speaker-knop toggle
+    speakerBtn.addEventListener('click', () => {
+      muted = !muted;
+      achtergrond.muted = muted;
+      if (muted) {
+        speakerBtn.textContent = "🔇";
+        speakerBtn.style.color = "red";
+      } else {
+        speakerBtn.textContent = "🔊";
+        speakerBtn.style.color = "black";
+        if (achtergrond.paused) achtergrond.play();
+      }
+    });
+
+    // Functie om vraag voor te lezen
+    function speak(text) {
+      if ('speechSynthesis' in window) {
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'nl-NL';
+        window.speechSynthesis.speak(utterance);
+      }
+    }
 
     startBtn.addEventListener('click', () => {
       antwoordContainer.textContent = "";
 
-      // Start achtergrondgeluid (gebruikersinteractie vereist)
-      if (achtergrond.paused) {
+      // Start achtergrondmuziek als nog niet gestart
+      if (achtergrond.paused && !muted) {
         achtergrond.play();
       }
 
@@ -77,6 +112,9 @@
       const randomIndex = Math.floor(Math.random() * vragen.length);
       const q = vragen[randomIndex];
       vraagContainer.textContent = q.vraag;
+
+      // Vraag voorlezen
+      speak(q.vraag);
 
       let timer = 3; // 3 seconden countdown
       countdownEl.textContent = timer;

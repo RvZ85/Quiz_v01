@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quiz met Countdown</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-color: #f0f0f0;
+    }
+    #vraag-container {
+      font-size: 1.5rem;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    #countdown {
+      font-size: 2rem;
+      margin-bottom: 20px;
+      color: #d9534f;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="vraag-container">Klik op de knop om de vraag te starten</div>
+  <div id="countdown"></div>
+  <button id="start-btn">Start Quiz</button>
+
+  <!-- Geluid -->
+  <audio id="belletje" src="https://www.soundjay.com/buttons/sounds/beep-07.mp3" preload="auto"></audio>
+
+  <script>
+    const vragen = [
+      "Wat is de hoofdstad van Nederland?",
+      "Hoeveel provincies heeft Nederland?",
+      "Wie schilderde de Nachtwacht?",
+      "Wat is de grootste planeet in ons zonnestelsel?",
+      "Hoeveel seconden zitten er in een uur?"
+    ];
+
+    const vraagContainer = document.getElementById('vraag-container');
+    const countdownEl = document.getElementById('countdown');
+    const startBtn = document.getElementById('start-btn');
+    const belletje = document.getElementById('belletje');
+
+    startBtn.addEventListener('click', () => {
+      // Kies een willekeurige vraag
+      const randomIndex = Math.floor(Math.random() * vragen.length);
+      const vraag = vragen[randomIndex];
+      vraagContainer.textContent = vraag;
+
+      let timer = 3; // 3 seconden countdown
+      countdownEl.textContent = timer;
+
+      // Start interval
+      const interval = setInterval(() => {
+        timer--;
+        if (timer > 0) {
+          countdownEl.textContent = timer;
+        } else {
+          countdownEl.textContent = "Belletje!";
+          belletje.play();
+          clearInterval(interval);
+        }
+      }, 1000);
+    });
+  </script>
+
+</body>
+</html>
